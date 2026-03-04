@@ -1378,6 +1378,44 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
+   DEVELOPER INTRO SECTION
+═══════════════════════════════════════════════ */
+
+.intro-dev {
+    padding: 80px 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.intro-dev-inner {
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+}
+
+.intro-dev h2 {
+    font-family: var(--ff-display);
+    font-size: 2rem;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+
+.intro-dev p {
+    font-size: .95rem;
+    color: var(--text2);
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+
+
+/* developer credit */
+.footer-dev {
+    font-size: .8rem;
+    color: var(--text3);
+}
+
+/* ═══════════════════════════════════════════════
    ANIMATIONS
 ═══════════════════════════════════════════════ */
 @keyframes fadeUp {
