@@ -546,6 +546,16 @@ function restartQuiz() {
     startQuiz();
 }
 
+async function sendMessage(userMessage) {
+  const response = await fetch("http://localhost:3000/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage }),
+  });
+  const data = await response.json();
+  return data.reply;
+}
+
 /* ═══════════════════════════════════════════════
    EVENT LISTENERS
 ═══════════════════════════════════════════════ */
@@ -557,3 +567,217 @@ if (btnRestart) btnRestart.addEventListener('click', restartQuiz);
    INIT
 ═══════════════════════════════════════════════ */
 loadLastScore();
+/* ═══════════════════════════════════════════════
+   CHATBOT — Frontend Logic
+═══════════════════════════════════════════════ */
+(function () {
+    'use strict';
+
+    var BACKEND_URL = 'http://localhost:3000/chat';
+
+    /* DOM refs */
+    var fab         = document.getElementById('chatFab');
+    var fabIcon     = document.getElementById('fabIcon');
+    var fabBadge    = document.getElementById('fabBadge');
+    var widget      = document.getElementById('chatWidget');
+    var backdrop    = document.getElementById('chatBackdrop');
+    var closeBtn    = document.getElementById('cwClose');
+    var clearBtn    = document.getElementById('cwClear');
+    var messagesEl  = document.getElementById('cwMessages');
+    var inputEl     = document.getElementById('cwInput');
+    var sendBtn     = document.getElementById('cwSend');
+    var suggestions = document.getElementById('cwSuggestions');
+    var navChatBtn  = document.getElementById('chatNavBtn');
+
+    var isOpen      = false;
+    var isBusy      = false;
+    var unreadCount = 0;
+
+    /* ── Helpers ───────────────────────────── */
+    function getTime() {
+        var d = new Date();
+        var h = d.getHours(), m = d.getMinutes();
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+    }
+
+    function scrollToBottom() {
+        if (messagesEl) {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    }
+
+    /* ── Render messages ───────────────────── */
+    function appendMessage(text, role, isError) {
+        var wrap = document.createElement('div');
+        wrap.className = 'cw-msg ' + role + (isError ? ' cw-error' : '');
+
+        var bubble = document.createElement('div');
+        bubble.className = 'cw-bubble';
+        bubble.textContent = text;
+
+        var time = document.createElement('span');
+        time.className = 'cw-time';
+        time.textContent = getTime();
+
+        wrap.appendChild(bubble);
+        wrap.appendChild(time);
+        if (messagesEl) {
+            messagesEl.appendChild(wrap);
+            scrollToBottom();
+        }
+        return wrap;
+    }
+
+    function showTyping() {
+        var wrap = document.createElement('div');
+        wrap.className = 'cw-msg bot cw-typing';
+        wrap.id = 'cwTyping';
+        wrap.innerHTML = '<div class="cw-bubble"><span class="cw-dot"></span><span class="cw-dot"></span><span class="cw-dot"></span></div>';
+        if (messagesEl) {
+            messagesEl.appendChild(wrap);
+            scrollToBottom();
+        }
+    }
+
+    function removeTyping() {
+        var t = document.getElementById('cwTyping');
+        if (t) t.remove();
+    }
+
+    /* ── Open / Close ──────────────────────── */
+    function openChat() {
+        isOpen = true;
+        if (widget)   widget.classList.add('open');
+        if (backdrop) backdrop.classList.add('visible');
+        if (fab)      fab.classList.add('open');
+        if (fabIcon)  fabIcon.textContent = '✕';
+        unreadCount = 0;
+        if (fabBadge) fabBadge.style.display = 'none';
+        setTimeout(function () { if (inputEl) inputEl.focus(); }, 320);
+    }
+
+    function closeChat() {
+        isOpen = false;
+        if (widget)   widget.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('visible');
+        if (fab)      fab.classList.remove('open');
+        if (fabIcon)  fabIcon.textContent = '💬';
+    }
+
+    /* ── Send message ──────────────────────── */
+    function sendMessage(text) {
+        text = text.trim();
+        if (!text || isBusy) return;
+
+        /* Hide suggestions after first real message */
+        if (suggestions) suggestions.style.display = 'none';
+
+        appendMessage(text, 'user');
+        if (inputEl) { inputEl.value = ''; inputEl.style.height = 'auto'; }
+
+        isBusy = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        showTyping();
+
+        fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error('Server error ' + res.status);
+            return res.json();
+        })
+        .then(function (data) {
+            removeTyping();
+            appendMessage(data.reply || 'Sorry, I have no answer for that.', 'bot');
+        })
+        .catch(function (err) {
+            removeTyping();
+            appendMessage(
+                '⚠️ Could not reach the Grammar Bot server.\nMake sure the Node.js backend is running on localhost:3000.',
+                'bot',
+                true
+            );
+        })
+        .finally(function () {
+            isBusy = false;
+            if (sendBtn) sendBtn.disabled = false;
+            if (!isOpen) {
+                unreadCount += 1;
+                if (fabBadge) {
+                    fabBadge.textContent = unreadCount;
+                    fabBadge.style.display = 'flex';
+                }
+            }
+        });
+    }
+
+    /* ── Event listeners ───────────────────── */
+    if (fab) fab.addEventListener('click', function () {
+        isOpen ? closeChat() : openChat();
+    });
+
+    if (navChatBtn) navChatBtn.addEventListener('click', openChat);
+
+    if (closeBtn) closeBtn.addEventListener('click', closeChat);
+
+    if (backdrop) backdrop.addEventListener('click', closeChat);
+
+    if (clearBtn) clearBtn.addEventListener('click', function () {
+        if (messagesEl) messagesEl.innerHTML = '';
+        if (suggestions) suggestions.style.display = 'flex';
+        addWelcome();
+    });
+
+    if (sendBtn) sendBtn.addEventListener('click', function () {
+        if (inputEl) sendMessage(inputEl.value);
+    });
+
+    if (inputEl) {
+        inputEl.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(inputEl.value);
+            }
+        });
+        /* Auto-resize textarea */
+        inputEl.addEventListener('input', function () {
+            inputEl.style.height = 'auto';
+            inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + 'px';
+        });
+    }
+
+    /* Quick suggestion chips */
+    if (suggestions) {
+        suggestions.querySelectorAll('.cw-chip').forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                var msg = chip.getAttribute('data-msg');
+                if (msg) {
+                    if (!isOpen) openChat();
+                    sendMessage(msg);
+                }
+            });
+        });
+    }
+
+    /* Close on Escape */
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen) closeChat();
+    });
+
+    /* ── Welcome message ───────────────────── */
+    function addWelcome() {
+        appendMessage(
+            "👋 Hi! I'm your Grammar Bot.\n\nAsk me anything about English grammar — conditionals, nouns, verbs, tenses, and more!\n\nTry one of the quick topics below, or type your own question.",
+            'bot'
+        );
+    }
+
+    /* ── Init ──────────────────────────────── */
+    addWelcome();
+
+}());
