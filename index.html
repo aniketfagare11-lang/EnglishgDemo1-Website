@@ -25,6 +25,11 @@
                 <li><a href="#theory" class="nav-link">Theory</a></li>
                 <li><a href="#quiz" class="nav-link">Quiz</a></li>
             </ul>
+            <button class="chat-nav-btn" id="chatNavBtn" aria-label="Open grammar chatbot">
+                <span class="chat-nav-icon">💬</span>
+                <span class="chat-nav-label">Ask Grammar Bot</span>
+                <span class="chat-nav-ping" id="chatNavPing"></span>
+            </button>
             <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode">
                 <span class="dt-icon" id="dtIcon">🌙</span>
                 <span class="dt-label" id="dtLabel">Dark</span>
@@ -411,6 +416,54 @@
             </div>
         </div>
     </footer>
+
+
+    <!-- ██████████ CHATBOT WIDGET ██████████ -->
+    <div class="chatbot-backdrop" id="chatBackdrop"></div>
+
+    <div class="chatbot-widget" id="chatWidget" role="dialog" aria-modal="true" aria-label="Grammar Assistant">
+        <div class="cw-header">
+            <div class="cw-header-left">
+                <div class="cw-avatar">
+                    <span class="cw-avatar-icon">🎓</span>
+                    <span class="cw-avatar-ping"></span>
+                </div>
+                <div class="cw-header-info">
+                    <span class="cw-name">Grammar Bot</span>
+                    <span class="cw-status" id="cwStatus">
+                        <span class="cw-status-dot"></span>Online
+                    </span>
+                </div>
+            </div>
+            <div class="cw-header-actions">
+                <button class="cw-action-btn" id="cwClear" title="Clear chat" aria-label="Clear chat">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+                <button class="cw-action-btn cw-close-btn" id="cwClose" title="Close" aria-label="Close chatbot">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="cw-messages" id="cwMessages"></div>
+        <div class="cw-suggestions" id="cwSuggestions">
+            <button class="cw-chip" data-msg="What is the first conditional?">1st Conditional</button>
+            <button class="cw-chip" data-msg="Explain the third conditional">3rd Conditional</button>
+            <button class="cw-chip" data-msg="What is a noun?">Nouns</button>
+            <button class="cw-chip" data-msg="Explain verb tenses">Tenses</button>
+            <button class="cw-chip" data-msg="How do I improve my English?">Improve English</button>
+        </div>
+        <div class="cw-input-row">
+            <textarea class="cw-input" id="cwInput" placeholder="Ask about grammar, tenses, conditionals…" rows="1" aria-label="Chat message"></textarea>
+            <button class="cw-send-btn" id="cwSend" aria-label="Send message">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <button class="chatbot-fab" id="chatFab" aria-label="Open Grammar Bot">
+        <span class="fab-icon" id="fabIcon">💬</span>
+        <span class="fab-badge" id="fabBadge" style="display:none">1</span>
+    </button>
 
     <script src="script.js"></script>
 </body>
