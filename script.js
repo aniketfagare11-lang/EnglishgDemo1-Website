@@ -574,7 +574,7 @@ loadLastScore();
 (function () {
     'use strict';
 
-    var BACKEND_URL = 'http://localhost:3000/chat';
+    var BACKEND_URL = 'https://english-grammer-chatbot.onrender.com/chat';
 
     /* DOM refs */
     var fab = document.getElementById('chatFab');
