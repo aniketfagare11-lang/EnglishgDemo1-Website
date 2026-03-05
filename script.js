@@ -547,13 +547,14 @@ function restartQuiz() {
 }
 
 async function sendMessage(userMessage) {
-  const response = await fetch("http://localhost:3000/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userMessage }),
-  });
-  const data = await response.json();
-  return data.reply;
+    const response = await fetch("https://english-grammer-chatbot.onrender.com/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+    });
+
+    const data = await response.json();
+    return data.reply;
 }
 
 /* ═══════════════════════════════════════════════
@@ -576,21 +577,21 @@ loadLastScore();
     var BACKEND_URL = 'http://localhost:3000/chat';
 
     /* DOM refs */
-    var fab         = document.getElementById('chatFab');
-    var fabIcon     = document.getElementById('fabIcon');
-    var fabBadge    = document.getElementById('fabBadge');
-    var widget      = document.getElementById('chatWidget');
-    var backdrop    = document.getElementById('chatBackdrop');
-    var closeBtn    = document.getElementById('cwClose');
-    var clearBtn    = document.getElementById('cwClear');
-    var messagesEl  = document.getElementById('cwMessages');
-    var inputEl     = document.getElementById('cwInput');
-    var sendBtn     = document.getElementById('cwSend');
+    var fab = document.getElementById('chatFab');
+    var fabIcon = document.getElementById('fabIcon');
+    var fabBadge = document.getElementById('fabBadge');
+    var widget = document.getElementById('chatWidget');
+    var backdrop = document.getElementById('chatBackdrop');
+    var closeBtn = document.getElementById('cwClose');
+    var clearBtn = document.getElementById('cwClear');
+    var messagesEl = document.getElementById('cwMessages');
+    var inputEl = document.getElementById('cwInput');
+    var sendBtn = document.getElementById('cwSend');
     var suggestions = document.getElementById('cwSuggestions');
-    var navChatBtn  = document.getElementById('chatNavBtn');
+    var navChatBtn = document.getElementById('chatNavBtn');
 
-    var isOpen      = false;
-    var isBusy      = false;
+    var isOpen = false;
+    var isBusy = false;
     var unreadCount = 0;
 
     /* ── Helpers ───────────────────────────── */
@@ -649,10 +650,10 @@ loadLastScore();
     /* ── Open / Close ──────────────────────── */
     function openChat() {
         isOpen = true;
-        if (widget)   widget.classList.add('open');
+        if (widget) widget.classList.add('open');
         if (backdrop) backdrop.classList.add('visible');
-        if (fab)      fab.classList.add('open');
-        if (fabIcon)  fabIcon.textContent = '✕';
+        if (fab) fab.classList.add('open');
+        if (fabIcon) fabIcon.textContent = '✕';
         unreadCount = 0;
         if (fabBadge) fabBadge.style.display = 'none';
         setTimeout(function () { if (inputEl) inputEl.focus(); }, 320);
@@ -660,10 +661,10 @@ loadLastScore();
 
     function closeChat() {
         isOpen = false;
-        if (widget)   widget.classList.remove('open');
+        if (widget) widget.classList.remove('open');
         if (backdrop) backdrop.classList.remove('visible');
-        if (fab)      fab.classList.remove('open');
-        if (fabIcon)  fabIcon.textContent = '💬';
+        if (fab) fab.classList.remove('open');
+        if (fabIcon) fabIcon.textContent = '💬';
     }
 
     /* ── Send message ──────────────────────── */
@@ -687,33 +688,33 @@ loadLastScore();
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text })
         })
-        .then(function (res) {
-            if (!res.ok) throw new Error('Server error ' + res.status);
-            return res.json();
-        })
-        .then(function (data) {
-            removeTyping();
-            appendMessage(data.reply || 'Sorry, I have no answer for that.', 'bot');
-        })
-        .catch(function (err) {
-            removeTyping();
-            appendMessage(
-                '⚠️ Could not reach the Grammar Bot server.\nMake sure the Node.js backend is running on localhost:3000.',
-                'bot',
-                true
-            );
-        })
-        .finally(function () {
-            isBusy = false;
-            if (sendBtn) sendBtn.disabled = false;
-            if (!isOpen) {
-                unreadCount += 1;
-                if (fabBadge) {
-                    fabBadge.textContent = unreadCount;
-                    fabBadge.style.display = 'flex';
+            .then(function (res) {
+                if (!res.ok) throw new Error('Server error ' + res.status);
+                return res.json();
+            })
+            .then(function (data) {
+                removeTyping();
+                appendMessage(data.reply || 'Sorry, I have no answer for that.', 'bot');
+            })
+            .catch(function (err) {
+                removeTyping();
+                appendMessage(
+                    '⚠️ Could not reach the Grammar Bot server.\nMake sure the Node.js backend is running on localhost:3000.',
+                    'bot',
+                    true
+                );
+            })
+            .finally(function () {
+                isBusy = false;
+                if (sendBtn) sendBtn.disabled = false;
+                if (!isOpen) {
+                    unreadCount += 1;
+                    if (fabBadge) {
+                        fabBadge.textContent = unreadCount;
+                        fabBadge.style.display = 'flex';
+                    }
                 }
-            }
-        });
+            });
     }
 
     /* ── Event listeners ───────────────────── */
